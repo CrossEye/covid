@@ -1,0 +1,23 @@
+<html>
+  <head>
+    <title>Covid Information</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.16.0/d3.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/1.33.1/plotly-basic.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="./styles.css" />
+  </head>
+  <body>
+    <h1 id="title">State Covid charts</h1>
+    <div id="state-chooser">
+      <details id="chooser">
+        <summary>Choose State</summary>
+        <ul id="states"></ul>
+      </details>
+    </div>
+    <div id="charts"></div>
+    <div id="raw"></div>
+    <div id="footer">
+      <p>Data source: <a href="https://github.com/nytimes/covid-19-data/">New York Times Covid Data repository</a></p>
+    </div>
+  </body>
+  <script src="all.js"></script>
+</html>
