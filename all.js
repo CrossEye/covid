@@ -9,7 +9,7 @@ const pluck = (name) => (xs) =>
 const uniq = (xs) => 
   [...new Set(xs)]
 
-const diffs = (xs) => xs .slice (1) .map ((x, i) => i > 0 ? x - xs [i - 1] : x)
+const diffs = (xs) => xs .map ((x, i) => i > 0 ? x - xs [i - 1] : x)
 
 const sum = (ns) =>
   ns .reduce ((a, b) => a + b, 0)
@@ -128,7 +128,8 @@ const makeTable = ({state, days}) => {
 }
 
 const makeSparkline = (allDays) => {
-  // TODO: use some normalization based on allDays, so sparklines are comparable... but perhaps not as well.
+  // TODO: use some normalization based on allDays, so sparklines are comparable.
+  // But perhaps not as well.  And if not, a better factoring would move the data generation out, leaving only the `.map` call 
   return (type, width, height, color = '#0074d9') => (state) => {
     const values = nDayAvg (7) (pluck (type) (allDays.filter(({state: s}) => state == s)).map ((x, i, a) => x - (i == 0 ? 0 : a[i - 1])))
     const lo = min (...values)
