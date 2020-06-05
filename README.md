@@ -8,12 +8,13 @@ TODO
 
 - [ ] Better mobile support
 
-- [ ] Add table showing states' summary data
+- [X] Add table showing states' summary data
 
-- [ ] Include sparklines
+- [X] Include sparklines
 
 - [ ] Add per-capita information
 
+- [ ] Table Sorting
 
   [ny]: https://github.com/nytimes/covid-19-data/
 	
