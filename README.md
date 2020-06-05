@@ -16,5 +16,7 @@ TODO
 
 - [ ] Table Sorting
 
+- [ ] Off-by-one error in state charts. Not showing yesterday
+
   [ny]: https://github.com/nytimes/covid-19-data/
 	
