@@ -6,10 +6,14 @@ Just a quick page to display various state's and the entire U.S.'s covid informa
 TODO
 ----
 
-  - [ ] Better mobile support
-  - [ ] Add table showing states' summary data
-	- [ ] Include sparklines
-	- [ ] Add per-capita information
+- [ ] Better mobile support
+
+- [ ] Add table showing states' summary data
+
+- [ ] Include sparklines
+
+- [ ] Add per-capita information
 
 
   [ny]: https://github.com/nytimes/covid-19-data/
+	

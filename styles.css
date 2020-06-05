@@ -1,13 +1,15 @@
 #footer, h1 {text-align: center}
 #footer {font-size: 90%; margin-top: 3em}
-table {border-collapse: collapse}
-td, th {padding: .2em 1em; border: 1px solid #ccc}
+table {border-collapse: collapse; margin: auto}
+td, th {padding: .2em 1em; border: 1px solid #ccc; text-align: left}
+td + td, th + th {text-align: right}
+td + td[colspan], th + th[colspan] {text-align: center}
 th {background-color: #333; color: #fff}
-tr.odd td {background-color: #f8f8ff}
-#raw {width: 500px; margin: 0 auto}
+th a {color: white}
+tbody tr:nth-child(even) td {background-color: #f8f8ff}
 #state-chooser ul {column-width: 12em} 
 #state-chooser li {list-style: none;}
-#state-chooser li a {text-decoration: none}
-#state-chooser li a:hover {text-decoration: underline}
+a {text-decoration: none}
+a:hover {text-decoration: underline}
 details, summary {margin-bottom: .5em}
 summary {font-size: 125%}
