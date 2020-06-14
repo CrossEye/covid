@@ -1,7 +1,7 @@
 #footer, h1 {text-align: center}
 #footer {font-size: 90%; margin-top: 3em}
 table {border-collapse: collapse; margin: auto}
-td, th {padding: .2em .3em; border: 1px solid #ccc}
+td, th {padding: .1em .25em; border: 1px solid #ccc}
 td {text-align: right}
 td:first-child {text-align: left}
 th {text-align: center}

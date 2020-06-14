@@ -12,11 +12,13 @@ TODO
 
 - [X] Include sparklines
 
-- [ ] Add per-capita information
+- [X] Add per-capita information
 
 - [ ] Table Sorting
 
 - [X] Off-by-one error in state charts. Not showing yesterday
+
+
 
   [ny]: https://github.com/nytimes/covid-19-data/
 	
