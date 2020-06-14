@@ -1,7 +1,7 @@
 #footer, h1 {text-align: center}
 #footer {font-size: 90%; margin-top: 3em}
 table {border-collapse: collapse; margin: auto}
-td, th {padding: .2em 1em; border: 1px solid #ccc; text-align: left}
+td, th {padding: .2em; border: 1px solid #ccc; text-align: left}
 td + td, th + th {text-align: right}
 td + td[colspan], th + th[colspan] {text-align: center}
 th {background-color: #333; color: #fff}
