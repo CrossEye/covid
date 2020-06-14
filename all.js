@@ -178,10 +178,9 @@ const addNational = (populations) => (allDays) => {
   national.innerHTML = `
   <table>
   <thead>
-  <tr><th></th><th colspan="6">Cases</th><th colspan="6">Deaths</th></tr>
-  <tr><th></th><th colspan="3">in previous...</th><th colspan="3"></th><th colspan="3">in previous...</th><th colspan="3"></th></tr>
+  <tr><th rowspan="3">State</th><th colspan="6">Cases</th><th colspan="6">Deaths</th></tr>
+  <tr><th colspan="3">in previous...</th><th colspan="3"></th><th colspan="3">in previous...</th><th colspan="3"></th></tr>
   <tr>
-    <th>State</th>
     <th>Day</th><th>Week</th><th>Month</th><th>Total</th><th>Per 100K</th><th>Trend</th>
     <th>Day</th><th>Week</th><th>Month</th><th>Total</th><th>Per 100K</th><th>Trend</th>
   </tr>

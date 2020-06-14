@@ -1,9 +1,12 @@
 #footer, h1 {text-align: center}
 #footer {font-size: 90%; margin-top: 3em}
 table {border-collapse: collapse; margin: auto}
-td, th {padding: .2em; border: 1px solid #ccc; text-align: left}
-td + td, th + th {text-align: right}
-td + td[colspan], th + th[colspan] {text-align: center}
+td, th {padding: .2em .3em; border: 1px solid #ccc}
+td {text-align: right}
+td:first-child {text-align: left}
+th {text-align: center}
+/*td + td, th + th {text-align: right}*/
+/*td + td[colspan], th + th[colspan] {text-align: center}*/
 th {background-color: #333; color: #fff}
 th a {color: white}
 tbody tr:nth-child(even) td {background-color: #f8f8ff}
