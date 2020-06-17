@@ -18,6 +18,14 @@ const sum = (ns) =>
 const avg = (ns) =>
   sum (ns) / ns .length
 
+const reverse = (xs) =>
+  xs .slice (0) .reverse ()
+
+const addCommas = (n) =>
+  [...String(n)] .reverse () .flatMap (
+    (d, i, a) => i % 3 == 2 && i < a.length - 1 ? [d, ','] : [d]
+  ) .reverse () .join ('')
+
 const nDayAvg = (n) => (xs) => 
   xs .map ((_, i) => round (avg (xs .slice (max (i - n, 0), i + 1))))
   
@@ -25,6 +33,36 @@ const groupBy = (fn) => (xs) => xs .reduce ((a, x) => ({
   ...a, 
   [fn(x)] : [...(a[fn(x)] || []), x]
 }), {})
+
+const path = (ps) => (obj) =>
+  ps .reduce ((o, p) => (o || {}) [p], obj)
+
+const getPath = (pathStr) => 
+  path(pathStr .split ('.'))
+
+const call = (fn,...args) =>
+  fn (...args)
+
+const plainSort = (a, b, path, ascend) => call((
+    aa = getPath(path)(a),
+    bb = getPath(path)(b)
+  ) => aa < bb ? ascend ? -1 : 1 : aa > bb ? ascend ? 1 : -1 : 0
+)
+
+const sortType = {
+  alpha: plainSort,
+  numeric: plainSort,
+  trend: (a, b, path, ascend, allDays) => 0 // TODO
+}
+
+const always0 = () => 0
+
+const sortStates = (config, states, allDays) => 
+  states /*.slice (0)*/ .sort ((a, b) => config .reduce (
+    (curr, {path, type, ascend}) => curr || (sortType[type] || always0)(a, b, path, ascend, allDays),
+    0
+  ))
+
   
 const config = ({state}) => ({
   row1: {
@@ -151,51 +189,31 @@ const makeSparkline = (allDays) => {
   }
 }
 
-const addNational = (populations) => (allDays) => {
-  const states = 
-    Object .entries (groupBy (s => s.state) (allDays)) .map (([state, days]) => [state, {
-      cases: {
-        total: days .slice (-1) [0] .cases,
-        per100k: round(days .slice (-1) [0] .cases / populations[state] * 100000),
-        oneDay: days .slice (-1) [0] .cases - days .slice (-2, -1) [0] .cases,
-        sevenDays: days.slice (-1) [0] .cases - days .slice (-8, -7) [0] .cases,
-        thirtyDays: days.slice (-1) [0] .cases - days .slice (-31, -1) [0] .cases,
-      },
-      deaths: {
-        total: days .slice (-1) [0] .deaths,
-        per100k: round(days .slice (-1) [0] .deaths / populations[state] * 100000),
-        oneDay: days .slice (-1) [0] .deaths - days .slice (-2, -1) [0] .deaths,
-        sevenDays: days.slice (-1) [0] .deaths - days .slice (-8, -7) [0] .deaths,
-        thirtyDays: days.slice (-1) [0] .deaths - days .slice (-31, -1) [0] .deaths,
-      }
-    }]) .sort (([a], [b]) => a < b ? -1 : a > b ? 1 : 0)
-  const idx = states .findIndex(([s]) => s == "United States")
-  const totals = states [idx] [1];
-  const byState = [...states .slice (0, idx), ... states .slice (idx +1)]
+const addNational = (populations, allDays, {totals, byState}) => {
   const national = document .getElementById ('national')
   const casesSparkline = makeSparkline (allDays) ('cases', 100, 30)
   const deathsSparkline = makeSparkline (allDays) ('deaths', 100, 30)
   national.innerHTML = `
   <table>
   <thead>
-  <tr><th rowspan="3">State</th><th colspan="6">Cases</th><th colspan="6">Deaths</th></tr>
-  <tr><th colspan="3">in previous...</th><th rowspan="2">Total</th><th rowspan="2">Per 100K</th><th rowspan="2">Trend</th><th colspan="3">in previous...</th><th rowspan="2">Total</th><th rowspan="2">Per 100K</th><th rowspan="2">Trend</th></tr>
+  <tr><th rowspan="3" data-sort="state:alpha">State</th><th colspan="6">Cases</th><th colspan="6">Deaths</th></tr>
+  <tr><th colspan="3">in previous...</th><th data-sort="cases.total:numeric" rowspan="2">Total</th><th data-sort="cases.per100k:numeric" rowspan="2">Per 100K</th><th rowspan="2">Trend</th><th colspan="3">in previous...</th><th data-sort="deaths.total:numeric" rowspan="2">Total</th><th data-sort="deaths.per100k:numeric" rowspan="2">Per 100K</th><th rowspan="2">Trend</th></tr>
   <tr>
-    <th>Day</th><th>Week</th><th>Month</th>
-    <th>Day</th><th>Week</th><th>Month</th>
+    <th data-sort="cases.oneDay:numeric">Day</th> <th data-sort="cases.sevenDays:numeric">Week</th> <th data-sort="casess.thirtyDays:numeric">Month</th>
+    <th data-sort="deaths.oneDay:numeric">Day</th><th data-sort="deaths.sevenDays:numeric">Week</th><th data-sort="deaths.thirtyDays:numeric">Month</th>
   </tr>
   </thead>
     <tbody>
-      ${byState.map(([state, {cases, deaths}]) =>
+      ${byState.map(({state, cases, deaths}) =>
       `<tr>
-        <td><a href="#/${ state .replace(/ /g, '+') }">${ state }</a></td>
+        <td title="Population: ${addCommas(populations[state])}"><a href="#/${ state .replace(/ /g, '+') }">${ state }</a></td>
         <td>${cases.oneDay}</td><td>${cases.sevenDays}</td><td>${cases.thirtyDays}</td><td>${cases.total}</td><td>${cases.per100k}</td><td>${casesSparkline (state)}</td>
         <td>${deaths.oneDay}</td><td>${deaths.sevenDays}</td><td>${deaths.thirtyDays}</td><td>${deaths.total}</td><td>${deaths.per100k}</td><td>${deathsSparkline (state)}</td>
       </tr>`).join('\n      ')}
     </tbody>
     <tfoot>
       <tr>
-        <th><a href="#/United+States">United States</a></th>
+        <th title="Population: ${populations['United States']}><a href="#/United+States">United States</a></th>
         <th>${totals.cases.oneDay}</th><th>${totals.cases.sevenDays}</th><th>${totals.cases.thirtyDays}</th><th>${totals.cases.total}</th><th>${totals.cases.per100k}</th><th>${makeSparkline (allDays) ('cases', 100, 30, 'white') ('United States')}</th>
         <th>${totals.deaths.oneDay}</th><th>${totals.deaths.sevenDays}</th><th>${totals.deaths.thirtyDays}</th><th>${totals.deaths.total}</th><th>${totals.deaths.per100k}</th><th>${makeSparkline (allDays) ('deaths', 100, 30, 'white') ('United States')}</th>
       </tr>
@@ -216,7 +234,7 @@ const makeCharts = ({state, days}) => {
   )
 }
 
-const stateChooser = (populations) => (days) => {
+const stateChooser = (populations, days) => {
   const states = uniq (pluck ('state') (days)) .sort()
   const details =  document .getElementById ('chooser')
   const national = document .getElementById ('show-national')
@@ -248,16 +266,64 @@ const stateChooser = (populations) => (days) => {
   chooseState()
 }
 
+
+const buildUI = (populations) => (allDays) => {
+  const states = 
+    Object .entries (groupBy (s => s.state) (allDays)) .map (([state, days]) => [state, {
+      cases: {
+        total: days .slice (-1) [0] .cases,
+        per100k: round(days .slice (-1) [0] .cases / populations[state] * 100000),
+        oneDay: days .slice (-1) [0] .cases - days .slice (-2, -1) [0] .cases,
+        sevenDays: days.slice (-1) [0] .cases - days .slice (-8, -7) [0] .cases,
+        thirtyDays: days.slice (-1) [0] .cases - days .slice (-31, -1) [0] .cases,
+      },
+      deaths: {
+        total: days .slice (-1) [0] .deaths,
+        per100k: round(days .slice (-1) [0] .deaths / populations[state] * 100000),
+        oneDay: days .slice (-1) [0] .deaths - days .slice (-2, -1) [0] .deaths,
+        sevenDays: days.slice (-1) [0] .deaths - days .slice (-8, -7) [0] .deaths,
+        thirtyDays: days.slice (-1) [0] .deaths - days .slice (-31, -1) [0] .deaths,
+      }
+    }]) .sort (([a], [b]) => a < b ? -1 : a > b ? 1 : 0)
+  const idx = states .findIndex(([s]) => s == "United States")
+  const totals = {state: states [idx] [0], ...states [idx] [1]};
+  const byState = [...states .slice (0, idx), ... states .slice (idx +1)]
+    .map (([state, {cases, deaths}]) => ({state, cases, deaths}))
+  let sortFields = [];
+  addNational (populations, allDays, {totals, byState});
+  stateChooser (populations, allDays)
+  document.getElementById('national').addEventListener('click', (e) => {
+     if (e.target.nodeName == 'TH') {
+      const sorter = e .target .dataset .sort
+      if (sorter) {
+        const [path, type] = sorter .split (':')
+        const index = sortFields .findIndex (({path: p}) => p === path)
+        sortFields = index > -1
+          ? [
+              ...sortFields. slice (0, index), 
+              ...sortFields .slice (index + 1), 
+              {path, type, ascend: index < sortFields.length - 1 ? true : !sortFields[index].ascend}
+            ]
+          : [...sortFields, {path, type, ascend: true}]
+
+        sortStates(reverse(sortFields), byState, allDays)
+        addNational (populations, allDays, {totals, byState});
+      }
+    }
+  })
+}
+
 const displayError = (err) =>
   document .getElementById ('title') .innerHTML = `Problem loading data: ${err}`
+
 
 const populations = ((pops) => ({
   ...pops,
   "United States": sum (Object .values (pops))
 })) ({
-// from https://api.census.gov/data/2019/pep/population?get=POP,NAME&for=state:*
-// with additional territory information from http://en.wikipedia.com/wiki
-  ...({"Alabama": 4903185, "Alaska": 731545, "Arizona": 7278717, "Arkansas": 3017804, "California": 39512223, "Colorado": 5758736, "Connecticut": 3565287, "Delaware": 973764, "District of Columbia": 705749, "Florida": 21477737, "Georgia": 10617423, "Hawaii": 1415872, "Idaho": 1787065, "Illinois": 12671821, "Indiana": 6732219, "Iowa": 3155070, "Kansas": 2913314, "Kentucky": 4467673, "Louisiana": 4648794, "Maine": 1344212, "Maryland": 6045680, "Massachusetts": 6892503, "Michigan": 9986857, "Minnesota": 5639632, "Mississippi": 2976149, "Missouri": 6137428, "Montana": 1068778, "Nebraska": 1934408, "Nevada": 3080156, "New Hampshire": 1359711, "New Jersey": 8882190, "New Mexico": 2096829, "New York": 19453561, "North Carolina": 10488084, "North Dakota": 762062, "Ohio": 11689100, "Oklahoma": 3956971, "Oregon": 4217737, "Pennsylvania": 12801989, "Puerto Rico": 3193694, "Rhode Island": 1059361, "South Carolina": 5148714, "South Dakota": 884659, "Tennessee": 6829174, "Texas": 28995881, "Utah": 3205958, "Vermont": 623989, "Virginia": 8535519, "Washington": 7614893, "West Virginia": 1792147, "Wisconsin": 5822434, "Wyoming": 578759}),
+  // from https://api.census.gov/data/2019/pep/population?get=POP,NAME&for=state:*
+  ...({Alabama: 4903185, Alaska: 731545, Arizona: 7278717, Arkansas: 3017804, California: 39512223, Colorado: 5758736, Connecticut: 3565287, Delaware: 973764, 'District of Columbia': 705749, Florida: 21477737, Georgia: 10617423, Hawaii: 1415872, Idaho: 1787065, Illinois: 12671821, Indiana: 6732219, Iowa: 3155070, Kansas: 2913314, Kentucky: 4467673, Louisiana: 4648794, Maine: 1344212, Maryland: 6045680, Massachusetts: 6892503, Michigan: 9986857, Minnesota: 5639632, Mississippi: 2976149, Missouri: 6137428, Montana: 1068778, Nebraska: 1934408, Nevada: 3080156, 'New Hampshire': 1359711, 'New Jersey': 8882190, 'New Mexico': 2096829, 'New York': 19453561, 'North Carolina': 10488084, 'North Dakota': 762062, Ohio: 11689100, Oklahoma: 3956971, Oregon: 4217737, Pennsylvania: 12801989, 'Puerto Rico': 3193694, 'Rhode Island': 1059361, 'South Carolina': 5148714, 'South Dakota': 884659, Tennessee: 6829174, Texas: 28995881, Utah: 3205958, Vermont: 623989, Virginia: 8535519, Washington: 7614893, 'West Virginia': 1792147, Wisconsin: 5822434, Wyoming: 578759}),
+  // with additional territory information from http://en.wikipedia.com/wiki
   ...({Guam: 168485, "Northern Mariana Islands": 56882, "Virgin Islands": 106977})
 })
 
@@ -265,6 +331,5 @@ fetch ('https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-states
   .then (r => r .text ())
   .then (csv2arr)
   .then (addUnitedStates)
-  .then (tap (addNational(populations)))
-  .then (tap (stateChooser(populations)))
+  .then (tap (buildUI (populations)))
   .catch (displayError)

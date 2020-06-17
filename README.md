@@ -14,11 +14,11 @@ TODO
 
 - [X] Add per-capita information
 
-- [ ] Table Sorting
+- [X] Table Sorting
 
 - [X] Off-by-one error in state charts. Not showing yesterday
 
-
+- [ ] Show sort direction in Table Headers
 
   [ny]: https://github.com/nytimes/covid-19-data/
 	
