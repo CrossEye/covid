@@ -200,7 +200,7 @@ const addNational = (populations, allDays, {totals, byState}) => {
   <tr><th colspan="3">in previous...</th><th data-sort="cases.total:numeric" rowspan="2">Total</th><th data-sort="cases.per100k:numeric" rowspan="2">Per 100K</th><th rowspan="2">Trend</th><th colspan="3">in previous...</th><th data-sort="deaths.total:numeric" rowspan="2">Total</th><th data-sort="deaths.per100k:numeric" rowspan="2">Per 100K</th><th rowspan="2">Trend</th></tr>
   <tr>
     <th data-sort="cases.oneDay:numeric">Day</th> <th data-sort="cases.sevenDays:numeric">Week</th> <th data-sort="cases.thirtyDays:numeric">Month</th>
-    <th data-sort="deaths.oneDay:numeric">Day</th><th data-sort="deaths.sevenDays:numeric">Week</th><th data-sort="deaths.thirtyDays:numeric1">Month</th>
+    <th data-sort="deaths.oneDay:numeric">Day</th><th data-sort="deaths.sevenDays:numeric">Week</th><th data-sort="deaths.thirtyDays:numeric">Month</th>
   </tr>
   </thead>
     <tbody>
