@@ -52,7 +52,22 @@ const plainSort = (a, b, path, ascend) => call((
 const sortType = {
   alpha: plainSort,
   numeric: plainSort,
-  trend: (a, b, path, ascend, allDays) => 0 // TODO
+  // sort by the ratio of the most recent to the maximum, with a secondar
+  // of ratio of most recent to average.  It's ad hob but seems reasonable.
+  trend: (a, b, path, ascend) => {
+    const as = getPath(path)(a);
+    const al = as[as.length - 1]
+    const am = Math.max(...as)
+    const aa = al / (Math.max(am, 1))
+    const av = al / (avg(as))    
+    const bs = getPath(path)(b);
+    const bl = bs[bs.length - 1]
+    const bm = Math.max(...bs)
+    const bb = bl / (Math.max(bm, 1))
+    const bv = bl / (avg(bs))
+    return aa < bb ? ascend ? -1 : 1 : aa > bb ? ascend ? 1 : -1 : 
+           av < bv ? ascend ? -1 : 1 : av > bb ? ascend ? 1 : -1 : 0
+  }
 }
 
 const always0 = () => 0
@@ -166,38 +181,33 @@ const makeTable = ({state, days}) => {
   document .getElementById ('raw-details') .open = true
 }
 
-const makeSparkline = (allDays) => {
-  // TODO: use some normalization based on allDays, so sparklines are comparable.
-  // But perhaps not as well.  And if not, a better factoring would move the data generation out, leaving only the `.map` call 
-  return (type, width, height, color = '#0074d9') => (state) => {
-    const values = nDayAvg (7) (pluck (type) (allDays.filter(({state: s}) => state == s)).map ((x, i, a) => x - (i == 0 ? 0 : a[i - 1])))
-    const lo = min (...values)
-    const hi = max (...values)
-    const count = values .length
-    const pairs = values .map ((v, i) => [
-      i / count * width,
-      height - (v - lo) / (hi - lo) * height
-    ].join(',')).join(' ')
+const makeSparkline = (width, height, color = '#0074d9') => (values) => {
+  const lo = min (...values)
+  const hi = max (...values)
+  const count = values .length
+  const pairs = values .map ((v, i) => [
+    i / count * width,
+    height - (v - lo) / (hi - lo) * height
+  ].join(',')).join(' ')
 
-    return `<svg viewBox="0 0 ${width} ${height}" class="chart" style="height:${height}px; width:${width}px">
-    <polyline
-       fill="none"
-       stroke="${color}"
-       stroke-width="1"
-       points="${pairs}"/>
-  </svg>`
-  }
+  return `<svg viewBox="0 0 ${width} ${height}" class="chart" style="height:${height}px; width:${width}px">
+  <polyline
+      fill="none"
+      stroke="${color}"
+      stroke-width="1"
+      points="${pairs}"/>
+</svg>`
 }
 
 const addNational = (populations, allDays, {totals, byState}) => {
   const national = document .getElementById ('national')
-  const casesSparkline = makeSparkline (allDays) ('cases', 100, 30)
-  const deathsSparkline = makeSparkline (allDays) ('deaths', 100, 30)
+  const sparkline = makeSparkline (100, 30)
+  const footerSparkline = makeSparkline (100, 30, 'white')
   national.innerHTML = `
   <table>
   <thead>
   <tr><th rowspan="3" data-sort="state:alpha">State</th><th colspan="6">Cases</th><th colspan="6">Deaths</th></tr>
-  <tr><th colspan="3">in previous...</th><th data-sort="cases.total:numeric" rowspan="2">Total</th><th data-sort="cases.per100k:numeric" rowspan="2">Per 100K</th><th rowspan="2">Trend</th><th colspan="3">in previous...</th><th data-sort="deaths.total:numeric" rowspan="2">Total</th><th data-sort="deaths.per100k:numeric" rowspan="2">Per 100K</th><th rowspan="2">Trend</th></tr>
+  <tr><th colspan="3">in previous...</th><th data-sort="cases.total:numeric" rowspan="2">Total</th><th data-sort="cases.per100k:numeric" rowspan="2">Per 100K</th><th rowspan="2" data-sort="cases.trend:trend">Trend</th><th colspan="3">in previous...</th><th data-sort="deaths.total:numeric" rowspan="2">Total</th><th data-sort="deaths.per100k:numeric" rowspan="2">Per 100K</th><th rowspan="2" data-sort="cases.trend:trend">Trend</th></tr>
   <tr>
     <th data-sort="cases.oneDay:numeric">Day</th> <th data-sort="cases.sevenDays:numeric">Week</th> <th data-sort="cases.thirtyDays:numeric">Month</th>
     <th data-sort="deaths.oneDay:numeric">Day</th><th data-sort="deaths.sevenDays:numeric">Week</th><th data-sort="deaths.thirtyDays:numeric">Month</th>
@@ -207,19 +217,19 @@ const addNational = (populations, allDays, {totals, byState}) => {
       ${byState.map(({state, cases, deaths}) =>
       `<tr>
         <td title="Population: ${addCommas(populations[state])}"><a href="#/${ state .replace(/ /g, '+') }">${ state }</a></td>
-        <td>${cases.oneDay}</td><td>${cases.sevenDays}</td><td>${cases.thirtyDays}</td><td>${cases.total}</td><td>${cases.per100k}</td><td>${casesSparkline (state)}</td>
-        <td>${deaths.oneDay}</td><td>${deaths.sevenDays}</td><td>${deaths.thirtyDays}</td><td>${deaths.total}</td><td>${deaths.per100k}</td><td>${deathsSparkline (state)}</td>
+        <td>${cases.oneDay}</td><td>${cases.sevenDays}</td><td>${cases.thirtyDays}</td><td>${cases.total}</td><td>${cases.per100k}</td><td>${sparkline (cases.trend)}</td>
+        <td>${deaths.oneDay}</td><td>${deaths.sevenDays}</td><td>${deaths.thirtyDays}</td><td>${deaths.total}</td><td>${deaths.per100k}</td><td>${sparkline (deaths.trend)}</td>
       </tr>`).join('\n      ')}
     </tbody>
     <tfoot>
       <tr>
         <th title="Population: ${populations['United States']}><a href="#/United+States">United States</a></th>
-        <th>${totals.cases.oneDay}</th><th>${totals.cases.sevenDays}</th><th>${totals.cases.thirtyDays}</th><th>${totals.cases.total}</th><th>${totals.cases.per100k}</th><th>${makeSparkline (allDays) ('cases', 100, 30, 'white') ('United States')}</th>
-        <th>${totals.deaths.oneDay}</th><th>${totals.deaths.sevenDays}</th><th>${totals.deaths.thirtyDays}</th><th>${totals.deaths.total}</th><th>${totals.deaths.per100k}</th><th>${makeSparkline (allDays) ('deaths', 100, 30, 'white') ('United States')}</th>
+        <th>${totals.cases.oneDay}</th><th>${totals.cases.sevenDays}</th><th>${totals.cases.thirtyDays}</th><th>${totals.cases.total}</th><th>${totals.cases.per100k}</th><th>${footerSparkline (totals.cases.trend)}</th>
+        <th>${totals.deaths.oneDay}</th><th>${totals.deaths.sevenDays}</th><th>${totals.deaths.thirtyDays}</th><th>${totals.deaths.total}</th><th>${totals.deaths.per100k}</th><th>${footerSparkline (totals.cases.trend)}</th>
       </tr>
     </tfoot>
   </table>`
-}
+} 
 
 const makeCharts = ({state, days}) => {
   const chartDiv = document .getElementById ('charts')
@@ -257,6 +267,7 @@ const stateChooser = (populations, days) => {
        document .title = `Covid Information`
        document .getElementById ('title') .innerHTML = `State Covid charts`
        details .open = true
+       national .open = true
        document.getElementById('charts').innerHTML = ''
        document.getElementById('raw').innerHTML = ''
     }
@@ -276,6 +287,8 @@ const buildUI = (populations) => (allDays) => {
         oneDay: days .slice (-1) [0] .cases - days .slice (-2, -1) [0] .cases,
         sevenDays: days.slice (-1) [0] .cases - days .slice (-8, -7) [0] .cases,
         thirtyDays: days.slice (-1) [0] .cases - days .slice (-31, -1) [0] .cases,
+        trend: nDayAvg (7) (diffs (pluck ('cases') (days)))
+
       },
       deaths: {
         total: days .slice (-1) [0] .deaths,
@@ -283,12 +296,16 @@ const buildUI = (populations) => (allDays) => {
         oneDay: days .slice (-1) [0] .deaths - days .slice (-2, -1) [0] .deaths,
         sevenDays: days.slice (-1) [0] .deaths - days .slice (-8, -7) [0] .deaths,
         thirtyDays: days.slice (-1) [0] .deaths - days .slice (-31, -1) [0] .deaths,
+        trend: nDayAvg (7) (diffs (pluck ('deaths') (days)))
       }
     }]) .sort (([a], [b]) => a < b ? -1 : a > b ? 1 : 0)
   const idx = states .findIndex(([s]) => s == "United States")
   const totals = {state: states [idx] [0], ...states [idx] [1]};
   const byState = [...states .slice (0, idx), ... states .slice (idx +1)]
     .map (([state, {cases, deaths}]) => ({state, cases, deaths}))
+
+console.log(byState)
+
   let sortFields = [];
   addNational (populations, allDays, {totals, byState});
   stateChooser (populations, allDays)
