@@ -6,8 +6,7 @@ td {text-align: right}
 td:first-child {text-align: left}
 th {text-align: center}
 th[data-sort] {cursor: pointer}
-/*td + td, th + th {text-align: right}*/
-/*td + td[colspan], th + th[colspan] {text-align: center}*/
+th[data-sort]:hover {color: yellow}
 th {background-color: #333; color: #fff}
 th a {color: white}
 tbody tr:nth-child(even) td {background-color: #f8f8ff}
