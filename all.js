@@ -86,13 +86,12 @@ const config = ({state}) => ({
       fn: (days) => [{
         x: pluck ('date') (days),
         y: diffs (pluck ('deaths') (days)),
-        type: 'area', 
-        fill: 'tonexty',
+        type: 'bar', 
         name: 'Covid deaths',
       },{
         x: days .map (({date}) => date),
         y: nDayAvg (7) (diffs (days .map (({deaths}) => deaths))),
-        type: 'area', 
+        type: 'line', 
         name: '7-day average',
         fill: 'tozeroy',
     }] 
@@ -102,13 +101,12 @@ const config = ({state}) => ({
       fn: (days) => [{
         x: days .map (({date}) => date),
         y: diffs (days .map (({cases}) => cases)),
-        type: 'area', 
-        fill: 'tonexty',
+        type: 'bar', 
         name: 'Covid cases',
       },{
         x: days .map (({date}) => date),
         y: nDayAvg (7) (diffs (days .map (({cases}) => cases))),
-        type: 'area', 
+        type: 'line', 
         name: '7-day average',
         fill: 'tozeroy',
       }]
