@@ -43,7 +43,7 @@ const getPath = (pathStr) =>
 const call = (fn,...args) =>
   fn (...args)
 
-const plainSort = (a, b, path, ascend) => call((
+const plainSort = (path, ascend) => (a, b) => call((
     aa = getPath(path)(a),
     bb = getPath(path)(b)
   ) => aa < bb ? ascend ? -1 : 1 : aa > bb ? ascend ? 1 : -1 : 0
@@ -52,9 +52,9 @@ const plainSort = (a, b, path, ascend) => call((
 const sortType = {
   alpha: plainSort,
   numeric: plainSort,
-  // sort by the ratio of the most recent to the maximum, with a secondar
-  // of ratio of most recent to average.  It's ad hob but seems reasonable.
-  trend: (a, b, path, ascend) => {
+  // Sort by the ratio of the most recent to the maximum, with a secondary of
+  // ratio of most recent to average.  It's ad hoc but results seems reasonable.
+  trend: (path, ascend) => (a, b) => {
     const as = getPath(path)(a);
     const al = as[as.length - 1]
     const am = Math.max(...as)
@@ -69,14 +69,6 @@ const sortType = {
            av < bv ? ascend ? -1 : 1 : av > bb ? ascend ? 1 : -1 : 0
   }
 }
-
-const always0 = () => 0
-
-const sortStates = (config, states, allDays) => 
-  states /*.slice (0)*/ .sort ((a, b) => config .reduce (
-    (curr, {path, type, ascend}) => curr || (sortType[type] || always0)(a, b, path, ascend, allDays),
-    0
-  ))
 
   
 const config = ({state}) => ({
@@ -199,7 +191,7 @@ const makeSparkline = (width, height, color = '#0074d9') => (values) => {
 </svg>`
 }
 
-const addNational = (populations, allDays, {totals, byState}) => {
+const addNational = (populations, allDays, {totals, byState, path, direction}) => {
   const national = document .getElementById ('national')
   const sparkline = makeSparkline (100, 30)
   const footerSparkline = makeSparkline (100, 30, 'white')
@@ -228,7 +220,9 @@ const addNational = (populations, allDays, {totals, byState}) => {
         <th>${totals.deaths.oneDay}</th><th>${totals.deaths.sevenDays}</th><th>${totals.deaths.thirtyDays}</th><th>${totals.deaths.total}</th><th>${totals.deaths.per100k}</th><th>${footerSparkline (totals.cases.trend)}</th>
       </tr>
     </tfoot>
-  </table>`
+  </table>`;
+  [...national.querySelectorAll(`th[data-sort^="${path}"]`)].forEach(node => node.classList.add(direction))
+
 } 
 
 const makeCharts = ({state, days}) => {
@@ -278,6 +272,7 @@ const stateChooser = (populations, days) => {
 }
 
 
+
 const buildUI = (populations) => (allDays) => {
   const states = 
     Object .entries (groupBy (s => s.state) (allDays)) .map (([state, days]) => [state, {
@@ -304,27 +299,18 @@ const buildUI = (populations) => (allDays) => {
   const byState = [...states .slice (0, idx), ... states .slice (idx +1)]
     .map (([state, {cases, deaths}]) => ({state, cases, deaths}))
 
-console.log(byState)
-
-  let sortFields = [];
-  addNational (populations, allDays, {totals, byState});
+  let sortField = {path: 'state', type: 'alpha', ascend: true}; // ugly nasty state.
+  addNational (populations, allDays, {totals, byState, path: 'state', direction: 'ascend'});
   stateChooser (populations, allDays)
   document.getElementById('national').addEventListener('click', (e) => {
      if (e.target.nodeName == 'TH') {
       const sorter = e .target .dataset .sort
       if (sorter) {
         const [path, type] = sorter .split (':')
-        const index = sortFields .findIndex (({path: p}) => p === path)
-        sortFields = index > -1
-          ? [
-              ...sortFields. slice (0, index), 
-              ...sortFields .slice (index + 1), 
-              {path, type, ascend: index < sortFields.length - 1 ? true : !sortFields[index].ascend}
-            ]
-          : [...sortFields, {path, type, ascend: true}]
-
-        sortStates(reverse(sortFields), byState, allDays)
-        addNational (populations, allDays, {totals, byState});
+        const ascend = (sortField.path == path) ? !sortField.ascend : true
+        sortField = {type, path, ascend}
+        byState.sort((sortType[type] || always0)(path, ascend))
+        addNational (populations, allDays, {totals, byState, path, direction: ascend ? 'ascend': 'descend'});
       }
     }
   })

@@ -5,10 +5,14 @@ td, th {padding: .1em .25em; border: 1px solid #ccc}
 td {text-align: right}
 td:first-child {text-align: left}
 th {text-align: center}
-th[data-sort] {cursor: pointer}
+th[data-sort] {cursor: pointer;}
 th[data-sort]:hover {color: yellow}
 th {background-color: #333; color: #fff}
 th a {color: white}
+th[data-sort]::after {content: "⬍"; color: #999; margin-left:.5em;}
+th[data-sort]:hover::after, th[data-sort].ascend:hover::after, th[data-sort].descend:hover::after {color: yellow}
+th[data-sort].ascend::after {content: "⯅"; color: #fff}
+th[data-sort].descend::after {content: "⯆"; color: #fff}
 tbody tr:nth-child(even) td {background-color: #f8f8ff}
 #state-chooser ul {column-width: 12em} 
 #state-chooser li {list-style: none;}
