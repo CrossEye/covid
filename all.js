@@ -58,13 +58,13 @@ const sortType = {
     const as = getPath(path)(a);
     const al = as[as.length - 1]
     const am = Math.max(...as)
-    const aa = al / (Math.max(am, 1))
-    const av = al / (avg(as))    
+    const aa = al / ((Math.max(am, 1)) || 1)
+    const av = al / ((avg(as)) || 1)
     const bs = getPath(path)(b);
     const bl = bs[bs.length - 1]
     const bm = Math.max(...bs)
-    const bb = bl / (Math.max(bm, 1))
-    const bv = bl / (avg(bs))
+    const bb = bl / ((Math.max(bm, 1)) || 1)
+    const bv = bl / ((avg(bs)) || 1)
     return aa < bb ? ascend ? -1 : 1 : aa > bb ? ascend ? 1 : -1 : 
            av < bv ? ascend ? -1 : 1 : av > bb ? ascend ? 1 : -1 : 0
   }
@@ -78,13 +78,12 @@ const config = ({state}) => ({
       fn: (days) => [{
         x: pluck ('date') (days),
         y: diffs (pluck ('deaths') (days)),
-        type: 'area', 
-        fill: 'tonexty',
+        type: 'bar', 
         name: 'Covid deaths',
       },{
         x: days .map (({date}) => date),
         y: nDayAvg (7) (diffs (days .map (({deaths}) => deaths))),
-        type: 'area', 
+        type: 'line', 
         name: '7-day average',
         fill: 'tozeroy',
     }] 
@@ -94,13 +93,12 @@ const config = ({state}) => ({
       fn: (days) => [{
         x: days .map (({date}) => date),
         y: diffs (days .map (({cases}) => cases)),
-        type: 'area', 
-        fill: 'tonexty',
+        type: 'bar', 
         name: 'Covid cases',
       },{
         x: days .map (({date}) => date),
         y: nDayAvg (7) (diffs (days .map (({cases}) => cases))),
-        type: 'area', 
+        type: 'line', 
         name: '7-day average',
         fill: 'tozeroy',
       }]
@@ -176,10 +174,10 @@ const makeTable = ({state, days}) => {
 const makeSparkline = (width, height, color = '#0074d9') => (values) => {
   const lo = min (...values)
   const hi = max (...values)
-  const count = values .length
+  const count = (values .length || 1)
   const pairs = values .map ((v, i) => [
     i / count * width,
-    height - (v - lo) / (hi - lo) * height
+    height - (v - lo) / ((hi - lo) || 1) * height
   ].join(',')).join(' ')
 
   return `<svg viewBox="0 0 ${width} ${height}" class="chart" style="height:${height}px; width:${width}px">
