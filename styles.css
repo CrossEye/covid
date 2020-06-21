@@ -9,7 +9,7 @@ th[data-sort] {cursor: pointer;}
 th[data-sort]:hover {color: yellow}
 th {background-color: #333; color: #fff}
 th a {color: white}
-th[data-sort]::after {content: "⬍"; color: #999; margin-left:.5em;}
+th[data-sort]::after {content: "⬍"; color: #666; margin-left:.5em;}
 th[data-sort]:hover::after, th[data-sort].ascend:hover::after, th[data-sort].descend:hover::after {color: yellow}
 th[data-sort].ascend::after {content: "⯅"; color: #fff}
 th[data-sort].descend::after {content: "⯆"; color: #fff}
