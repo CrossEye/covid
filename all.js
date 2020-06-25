@@ -213,7 +213,7 @@ const addNational = (populations, allDays, {totals, byState, path, direction}) =
     </tbody>
     <tfoot>
       <tr>
-        <th title="Population: ${populations['United States']}><a href="#/United+States">United States</a></th>
+        <th title="Population: ${addCommas(populations['United States'])}"><a href="#/United+States">United States</a></th>
         <th>${totals.cases.oneDay}</th><th>${totals.cases.sevenDays}</th><th>${totals.cases.thirtyDays}</th><th>${totals.cases.total}</th><th>${totals.cases.per100k}</th><th>${footerSparkline (totals.cases.trend)}</th>
         <th>${totals.deaths.oneDay}</th><th>${totals.deaths.sevenDays}</th><th>${totals.deaths.thirtyDays}</th><th>${totals.deaths.total}</th><th>${totals.deaths.per100k}</th><th>${footerSparkline (totals.deaths.trend)}</th>
       </tr>
