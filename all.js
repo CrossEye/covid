@@ -197,7 +197,7 @@ const addNational = (populations, allDays, {totals, byState, path, direction}) =
   <table>
   <thead>
   <tr><th rowspan="3" data-sort="state:alpha">State</th><th colspan="6">Cases</th><th colspan="6">Deaths</th></tr>
-  <tr><th colspan="3">in previous...</th><th data-sort="cases.total:numeric" rowspan="2">Total</th><th data-sort="cases.per100k:numeric" rowspan="2">Per 100K</th><th rowspan="2" data-sort="cases.trend:trend">Trend</th><th colspan="3">in previous...</th><th data-sort="deaths.total:numeric" rowspan="2">Total</th><th data-sort="deaths.per100k:numeric" rowspan="2">Per 100K</th><th rowspan="2" data-sort="cases.trend:trend">Trend</th></tr>
+  <tr><th colspan="3">in previous...</th><th data-sort="cases.total:numeric" rowspan="2">Total</th><th data-sort="cases.per100k:numeric" rowspan="2">Per 100K</th><th rowspan="2" data-sort="cases.trend:trend">Trend</th><th colspan="3">in previous...</th><th data-sort="deaths.total:numeric" rowspan="2">Total</th><th data-sort="deaths.per100k:numeric" rowspan="2">Per 100K</th><th rowspan="2" data-sort="deaths.trend:trend">Trend</th></tr>
   <tr>
     <th data-sort="cases.oneDay:numeric">Day</th> <th data-sort="cases.sevenDays:numeric">Week</th> <th data-sort="cases.thirtyDays:numeric">Month</th>
     <th data-sort="deaths.oneDay:numeric">Day</th><th data-sort="deaths.sevenDays:numeric">Week</th><th data-sort="deaths.thirtyDays:numeric">Month</th>
@@ -215,7 +215,7 @@ const addNational = (populations, allDays, {totals, byState, path, direction}) =
       <tr>
         <th title="Population: ${populations['United States']}><a href="#/United+States">United States</a></th>
         <th>${totals.cases.oneDay}</th><th>${totals.cases.sevenDays}</th><th>${totals.cases.thirtyDays}</th><th>${totals.cases.total}</th><th>${totals.cases.per100k}</th><th>${footerSparkline (totals.cases.trend)}</th>
-        <th>${totals.deaths.oneDay}</th><th>${totals.deaths.sevenDays}</th><th>${totals.deaths.thirtyDays}</th><th>${totals.deaths.total}</th><th>${totals.deaths.per100k}</th><th>${footerSparkline (totals.cases.trend)}</th>
+        <th>${totals.deaths.oneDay}</th><th>${totals.deaths.sevenDays}</th><th>${totals.deaths.thirtyDays}</th><th>${totals.deaths.total}</th><th>${totals.deaths.per100k}</th><th>${footerSparkline (totals.deaths.trend)}</th>
       </tr>
     </tfoot>
   </table>`;
