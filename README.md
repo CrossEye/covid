@@ -18,7 +18,7 @@ TODO
 
 - [X] Off-by-one error in state charts. Not showing yesterday
 
-- [ ] Show sort direction in Table Headers
+- [X] Show sort direction in Table Headers
 
   [ny]: https://github.com/nytimes/covid-19-data/
 	
