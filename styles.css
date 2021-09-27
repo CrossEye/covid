@@ -1,4 +1,4 @@
-#footer, h1 {text-align: center}
+#footer, h1, h2 {text-align: center}
 #footer {font-size: 90%; margin-top: 3em}
 table {border-collapse: collapse; margin: auto}
 td, th {padding: .1em .25em; border: 1px solid #ccc}
@@ -19,4 +19,4 @@ tbody tr:nth-child(even) td {background-color: #f8f8ff}
 a {text-decoration: none}
 a:hover {text-decoration: underline}
 details, summary {margin-bottom: .5em}
-summary {font-size: 125%}
+summary {font-size: 125%}n
