@@ -20,7 +20,7 @@ TODO
 
 - [X] Show sort direction in Table Headers
 
-- [ ] Fix bug when new states add data 
+- [X] Fix bug when new states add data 
 
   [ny]: https://github.com/nytimes/covid-19-data/
 	
